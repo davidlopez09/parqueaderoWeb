@@ -1,0 +1,14 @@
+# Supabase credentials (private config)
+modelo/Conexion.php
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Logs & backups
+*.log
+*.bak
