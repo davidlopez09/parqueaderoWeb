@@ -100,41 +100,94 @@ class Parqueo
     ];
   }
 
-  public static function ingresosPorPeriodo(string $tipo, string $fechaInicio = null, string $fechaFin = null): array
+  public static function ingresosPorDia(int $dias = 7): array
   {
-    $filtros = [];
-    if ($fechaInicio) $filtros['fecha_inicio'] = $fechaInicio;
-    if ($fechaFin) $filtros['fecha_fin'] = $fechaFin;
-
+    $fin = new DateTime('now', new DateTimeZone('UTC'));
+    $inicio = (clone $fin)->modify("-{$dias} days");
+    $filtros = [
+      'fecha_inicio' => $inicio->format('Y-m-d') . 'T00:00:00',
+      'fecha_fin' => $fin->format('Y-m-d') . 'T23:59:59',
+    ];
     $registros = self::listar($filtros);
-    $ingresos = [];
+
+    $diasData = [];
+    for ($i = $dias; $i >= 0; $i--) {
+      $f = (clone $fin)->modify("-{$i} days")->format('Y-m-d');
+      $diasData[$f] = 0;
+    }
 
     foreach ($registros as $r) {
       if (!$r['fecha_salida']) continue;
-      $fecha = new DateTime($r['fecha_salida']);
-      switch ($tipo) {
-        case 'hora':
-          $key = $fecha->format('Y-m-d H:00');
-          break;
-        case 'dia':
-          $key = $fecha->format('Y-m-d');
-          break;
-        case 'semana':
-          $key = $fecha->format('Y-\WW');
-          break;
-        case 'mes':
-          $key = $fecha->format('Y-m');
-          break;
-        case 'anio':
-          $key = $fecha->format('Y');
-          break;
-        default:
-          $key = $fecha->format('Y-m-d');
+      $fecha = (new DateTime($r['fecha_salida']))->format('Y-m-d');
+      if (isset($diasData[$fecha])) {
+        $diasData[$fecha] += (float) ($r['total'] ?? 0);
       }
-      if (!isset($ingresos[$key])) $ingresos[$key] = 0;
-      $ingresos[$key] += (float) ($r['total'] ?? 0);
     }
 
-    return $ingresos;
+    $labels = [];
+    $values = [];
+    foreach ($diasData as $f => $v) {
+      $labels[] = (new DateTime($f))->format('d/m');
+      $values[] = $v;
+    }
+
+    return ['labels' => $labels, 'values' => $values];
+  }
+
+  public static function ingresosPorMes(int $meses = 6): array
+  {
+    $fin = new DateTime('now', new DateTimeZone('UTC'));
+    $inicio = (clone $fin)->modify("-{$meses} months");
+    $filtros = [
+      'fecha_inicio' => $inicio->format('Y-m-d') . 'T00:00:00',
+      'fecha_fin' => $fin->format('Y-m-d') . 'T23:59:59',
+    ];
+    $registros = self::listar($filtros);
+
+    $mesesData = [];
+    for ($i = $meses; $i >= 0; $i--) {
+      $f = (clone $fin)->modify("-{$i} months")->format('Y-m');
+      $mesesData[$f] = 0;
+    }
+
+    foreach ($registros as $r) {
+      if (!$r['fecha_salida']) continue;
+      $fecha = (new DateTime($r['fecha_salida']))->format('Y-m');
+      if (isset($mesesData[$fecha])) {
+        $mesesData[$fecha] += (float) ($r['total'] ?? 0);
+      }
+    }
+
+    $labels = [];
+    $values = [];
+    foreach ($mesesData as $f => $v) {
+      $labels[] = (new DateTime($f . '-01'))->format('M Y');
+      $values[] = $v;
+    }
+
+    return ['labels' => $labels, 'values' => $values];
+  }
+
+  public static function conteoPorTipo(): array
+  {
+    $registros = self::listar();
+    $tipos = Conexion::get('tipos_vehiculo', ['select' => '*']);
+    $mapaTipos = [];
+    foreach ($tipos as $t) {
+      $mapaTipos[$t['id']] = $t['nombre'];
+    }
+
+    $conteo = [];
+    foreach ($registros as $r) {
+      $tipo = $mapaTipos[$r['tipo_vehiculo_id']] ?? 'Desconocido';
+      if (!isset($conteo[$tipo])) $conteo[$tipo] = 0;
+      $conteo[$tipo]++;
+    }
+
+    $labels = array_keys($conteo);
+    $values = array_values($conteo);
+    $colors = ['#1a73e8', '#2e7d32', '#f9a825', '#7b1fa2', '#e65100', '#00acc1'];
+
+    return ['labels' => $labels, 'values' => $values, 'colors' => array_slice($colors, 0, count($labels))];
   }
 }

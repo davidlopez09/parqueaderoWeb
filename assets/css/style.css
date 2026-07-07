@@ -423,6 +423,53 @@ body {
   color: var(--text-primary);
 }
 
+/* ========== CHARTS ========== */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.chart-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.chart-card-full {
+  grid-column: 1 / -1;
+}
+
+.chart-card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.chart-card-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.chart-body {
+  padding: 16px 20px;
+  height: 260px;
+  position: relative;
+}
+
+.chart-body-pie {
+  height: 300px;
+}
+
+@media (max-width: 768px) {
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ========== FORMS ========== */
 .inline-form {
   padding: 20px;

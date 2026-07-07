@@ -4,10 +4,10 @@ require_once __DIR__ . '/Conexion.php';
 
 class Usuario
 {
-  public static function autenticar(string $username, string $password): ?array
+  public static function autenticar(string $usuario, string $password): ?array
   {
     $usuarios = Conexion::get('usuarios', [
-      'username' => 'eq.' . $username,
+      'usuario' => 'eq.' . $usuario,
       'select' => '*',
       'limit' => '1',
     ]);
@@ -16,7 +16,12 @@ class Usuario
 
     $user = $usuarios[0];
 
-    if (!password_verify($password, $user['password_hash'])) return null;
+    $hash = $user['contraseña'];
+    if (str_starts_with($hash, '$2')) {
+      if (!password_verify($password, $hash)) return null;
+    } else {
+      if ($password !== $hash) return null;
+    }
 
     return $user;
   }
@@ -25,7 +30,7 @@ class Usuario
   {
     return Conexion::get('usuarios', [
       'select' => '*',
-      'order' => 'nombre.asc',
+      'order' => 'usuario.asc',
     ]);
   }
 
@@ -41,15 +46,16 @@ class Usuario
 
   public static function crear(array $data): array
   {
-    $data['password_hash'] = password_hash($data['password'], PASSWORD_BCRYPT);
+    $data['contraseña'] = password_hash($data['password'], PASSWORD_BCRYPT);
     unset($data['password']);
+    if (!isset($data['id_persona'])) $data['id_persona'] = null;
     return Conexion::post('usuarios', $data);
   }
 
   public static function actualizar(string $id, array $data): array
   {
     if (isset($data['password'])) {
-      $data['password_hash'] = password_hash($data['password'], PASSWORD_BCRYPT);
+      $data['contraseña'] = password_hash($data['password'], PASSWORD_BCRYPT);
       unset($data['password']);
     }
     return Conexion::patch('usuarios', $id, $data);
