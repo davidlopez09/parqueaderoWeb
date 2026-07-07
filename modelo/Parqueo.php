@@ -29,6 +29,9 @@ class Parqueo
         $params['fecha_salida'] = 'not.is.null';
       }
     }
+    if (!empty($filtros['tipo_vehiculo_id'])) {
+      $params['tipo_vehiculo_id'] = 'eq.' . $filtros['tipo_vehiculo_id'];
+    }
 
     return Conexion::get('parqueos', $params);
   }

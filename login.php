@@ -2,7 +2,7 @@
 session_start();
 
 if (isset($_SESSION['user_id'])) {
-  header('Location: index.php');
+  header('Location: index.php?url=dashboard');
   exit;
 }
 
@@ -21,8 +21,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parqueadero - Iniciar Sesión</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+    integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="public/css/global.css">
 </head>
 <body class="login-body">
   <div class="login-container">
@@ -38,36 +44,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <p class="login-subtitle">Panel de administración</p>
 
       <?php if ($error): ?>
-        <div class="alert alert-error"><?= htmlspecialchars($error) ?></div>
+        <div class="alert alert-danger text-center p-2 mb-3 small"><?= htmlspecialchars($error) ?></div>
       <?php endif; ?>
 
-      <form method="POST" class="login-form" autocomplete="off">
+      <form method="POST" class="login-form" autocomplete="off" data-no-ajax>
         <div class="form-group">
           <label for="username">Usuario</label>
           <input type="text" id="username" name="username" placeholder="Ingrese su usuario" required autofocus>
         </div>
         <div class="form-group">
           <label for="password">Contraseña</label>
-          <div class="password-wrapper">
-            <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
-            <button type="button" class="toggle-password" onclick="togglePassword()" tabindex="-1">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
-              </svg>
-            </button>
-          </div>
+          <input type="password" id="password" name="password" placeholder="Ingrese su contraseña" required>
         </div>
         <button type="submit" class="btn-login">Ingresar</button>
       </form>
       <p class="login-footer">Parqueadero v1.0</p>
     </div>
   </div>
-
-  <script>
-    function togglePassword() {
-      const pwd = document.getElementById('password');
-      pwd.type = pwd.type === 'password' ? 'text' : 'password';
-    }
-  </script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+    integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="public/js/core/ajax-forms.js"></script>
 </body>
 </html>

@@ -37,7 +37,7 @@ class AuthController
     $_SESSION['rol'] = 'admin';
 
     unset($_SESSION['error']);
-    header('Location: index.php');
+    header('Location: index.php?url=dashboard');
     exit;
   }
 

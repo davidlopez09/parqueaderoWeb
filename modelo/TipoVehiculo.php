@@ -58,4 +58,9 @@ class TipoVehiculo
   {
     return Conexion::patch('tipos_vehiculo', $id, ['activo' => true]);
   }
+
+  public static function eliminar(string $id): array
+  {
+    return Conexion::delete('tipos_vehiculo', $id);
+  }
 }
